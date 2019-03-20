@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="aricent"></div>
+</body>
+<script type="text/javascript" src="jsondata.js"></script>
+<script>
+
+    var list = JSON.parse(treeInfo);
+    // forms dom tree structure by sorting list data based on parent and id
+    var buildNodes = formTreeStructure(formHeirarchy(list, 0));
+
+    // adding the HTML to the div element
+    document.getElementById('aricent').appendChild(buildNodes);
+
+    //building a new json structure accordiong to parent child relation with recursion strategy.
+    function formHeirarchy(arr, parent) {
+        var heirarchyJson = [];
+        for (var elem of arr) {
+//checks the given element parent and argument parent
+if (elem.parent == parent) {
+                var child = formHeirarchy(arr, elem.id) // here function called recursively itself for forming the parent child relation
+                // after recursion if child data structure is present it is added as object key
+                if (child && child.length) {
+                    elem.child = child //assigns new key child property
+                }
+                // after the parent child relation formed inside the object, it will be added to the array in the below line
+                heirarchyJson.push(elem)
+            }
+        }
+        
+        // final data structure is returned below
+        return heirarchyJson;
+    }
+    // build dom as per the object structure which is conditioned with children keys
+    function formTreeStructure(sortedHierarchy) {
+        if (!sortedHierarchy.length) {
+            return undefined;
+        }
+
+        // first ul formed here 
+        let ul = document.createElement('ul');
+        // iterates the given array
+        sortedHierarchy.forEach(function (elem) {
+            // forms li element 
+            let li = document.createElement('li');
+            //adding text inside the li element
+            li.innerHTML = elem.text;
+            // checks object has children property if present ul li elements should be added recursively untill it has further children
+            if (elem['child'] && elem['child'].length > 0) {
+                let childrenUl = formTreeStructure(elem.child); // recursion happens here like it forms ul li for children property and further if it has more nested children
+                if (childrenUl) {
+                    li.append(childrenUl); // here the nested children structre is added to the already built li since this is the child
+                }
+            }
+            ul.append(li); //so the above li which has nested ul li formed recursively will be added here to the topmost ul
+        })
+        return ul; // so the ul consisting of li ul elements according to children tree is returned here
+    }
+
+
+
+</script>
+
+</html>
